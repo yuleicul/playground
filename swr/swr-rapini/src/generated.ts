@@ -9,7 +9,7 @@ import {
   type MutationFunction,
   type UseMutationResult,
   type UseQueryResult,
-} from "@tanstack/react-query";
+} from "react-query";
 export type RandomThing = {
   id: number;
   something: {

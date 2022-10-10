@@ -1,12 +1,16 @@
 import { useState } from "react";
 import useSWR from "swr";
 
-const fetcher = (url) => fetch(url).then((r) => r.json());
+const fetcher = (url, secondArg) => {
+  console.log(url);
+  console.log(secondArg);
+  return fetch(url).then((r) => r.json());
+};
 
 function App() {
   const [id, setId] = useState(1);
   const { data, error, mutate, isValidating } = useSWR(
-    `https://jsonplaceholder.typicode.com/posts/${id}`,
+    [`https://jsonplaceholder.typicode.com/posts/${id}`, "secondArg"],
     fetcher,
     {
       revalidateOnFocus: false,
@@ -57,6 +61,13 @@ function App() {
               {
                 populateCache: false,
                 // revalidate: false,
+                optimisticData: {
+                  userId: 1,
+                  id: 3,
+                  title:
+                    "ea molestias quasi exercitationem repellat qui ipsa sit aut",
+                  body: "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut",
+                },
               }
             );
           }}
