@@ -1,28 +1,31 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit'
-import { sub } from 'date-fns'
+import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
+import { client } from '../../api/client'
+
+// Generate actions
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+  const response = await client.get('/fakeApi/posts')
+  return response.data
+})
+
+export const addNewPost = createAsyncThunk(
+  'posts/addNewPost',
+  async (initialPost) => {
+    const response = await client.post('/fakeApi/posts', initialPost)
+    return response.data
+  }
+)
 
 const postsSlice = createSlice({
   name: 'posts',
-  initialState: [
-    {
-      id: '1',
-      title: 'First Post!',
-      content: 'Hello!',
-      date: sub(new Date(), { minutes: 10 }).toISOString(),
-      reactions: {},
-    },
-    {
-      id: '2',
-      title: 'Second Post',
-      content: 'More text!',
-      date: sub(new Date(), { minutes: 5 }).toISOString(),
-      reactions: {},
-    },
-  ],
+  initialState: {
+    posts: [],
+    status: 'idle',
+    error: null,
+  },
   reducers: {
     postAdded: {
       reducer: (state, action) => {
-        state.push(action.payload)
+        state.posts.push(action.payload)
       },
       prepare: (title, content, userId) => {
         return {
@@ -42,7 +45,7 @@ const postsSlice = createSlice({
     },
     postUpdated: (state, action) => {
       const postId = action.payload.id
-      const target = state.find((item) => item.id === postId)
+      const target = state.posts.find((item) => item.id === postId)
       if (target) {
         target.title = action.payload.title
         target.content = action.payload.content
@@ -50,15 +53,37 @@ const postsSlice = createSlice({
     },
     reactionAdded: (state, action) => {
       const { postId, reaction } = action.payload
-      const target = state.find((item) => item.id === postId)
+      const target = state.posts.find((item) => item.id === postId)
       const targetReaction = target?.reactions?.[reaction]
 
       if (targetReaction) target.reactions[reaction]++
       else target.reactions[reaction] = 1
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = 'loading'
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.posts = state.posts.concat(action.payload)
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = 'failed'
+        state.error = action.error.message
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        state.posts.push(action.payload)
+      })
+  },
 })
 
 export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
+
+export const selectAllPosts = (state) => state.posts.posts
+
+export const selectPostById = (state, postId) =>
+  state.posts.posts.find((post) => post.id === postId)
 
 export default postsSlice.reducer
