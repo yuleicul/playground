@@ -1,12 +1,11 @@
 import Fastify from "fastify"
+import routes from "./our-first-route.js"
 
 const fastify = Fastify({
   logger: true,
 })
 
-fastify.get("/", async (request, reply) => {
-  return { hello: "world" }
-})
+fastify.register(routes)
 
 const start = async () => {
   try {
