@@ -1,0 +1,22 @@
+GET http://localhost:3000/
+
+###
+GET http://localhost:3000/a/b/c
+
+
+### 
+GET http://localhost:3000/protected
+
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username": "yulei",
+    "password": "chen"
+}
+
+### 
+GET http://localhost:3000/protected
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl1bGVpIiwiaWF0IjoxNzA5Nzk0ODMxfQ.AKq_RMcy8nG487En4xmaGsG3jTOFxEvBx8_-NkIyLhw
